@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Diaphanum</title>
+<meta name="description" content="An open archive of Indian public procurement: 18.9 million tender notices and 8.8 million awards of contract 2011-2026">
+<style>
+body { max-width: 46em; margin: 2em auto; padding: 0 1em; font: 16px/1.5 Georgia, "Times New Roman", serif; color: #111; background: #fff; }
+h1 { font-size: 2em; margin-bottom: 0; }
+h2 { font-size: 1.3em; margin-top: 2em; }
+h3 { font-size: 1.05em; margin-bottom: 0.3em; }
+a { color: #0645ad; }
+table { border-collapse: collapse; margin: 1em 0; font-size: 0.9em; }
+th, td { padding: 3px 9px; text-align: left; vertical-align: top; }
+th { background: #eee; }
+td.n { text-align: right; font-variant-numeric: tabular-nums; }
+code, pre { font-family: Menlo, Consolas, "Courier New", monospace; font-size: 0.9em; }
+pre { background: #f4f4f4; padding: 0.6em; overflow-x: auto; }
+.sub { color: #555; margin-top: 0.2em; }
+.scroll { overflow-x: auto; }
+.todo { background: #ffff99; }
+</style>
+</head>
+<body>
+
+<h1>Project Diaphanum</h1>
+<p class="sub">An open archive of Indian public procurement, 2011&ndash;2026</p>
+
+<p>
+Government tenders let us citizens know where our tax rupees get spent. Every tender in India must be published on an official e-procurement portal. The records are scattered over about forty portals, making scrutiny extremely inaccessible to the average citizen.
+</p>
+<p>
+Diaphanum collects them into one place. This release holds 18.9 million tender notices and 8.8 million awards of contract from every Indian state and union territory, in open formats, open-sourced to make the rightful critique of the system of governance more accessible.
+</p>
+<p> 
+<b>
+It builds on the archive of <a href="https://tender.sarthaksidhant.com/">Sarthak Siddhant</a>, which covers the central
+government well but is thin on the states. Diaphanum adds the states. When talking about open-sourcing public procurement data, it is impossible to do so without acknowledging the work of Sarthak Siddhant. My sincerest gratitudes to him for kickstarting a movement where citizens gather on digital platforms to collaborate actively on scrutiny of public data. Kudos.
+</b>
+</p>
+
+<p>
+This project initially began in June 2025, with the aim of gathering public procurement data from my home state, West Bengal. Since then, it has exceeded multiple versions of its scope, and I believe this is the right time to release the data gathered until now. In no way is Project Diaphanum complete: there are several more organisations to examine, and closer inspection is required in the tallies of some states, but what good is this data if it sits on a hard disk and is not used to gain insights into the proceedings that build and run our country. 
+</p>
+
+<h2>Download</h2>
+
+<h3>Parquet (recommended)</h3>
+<p>
+Columnar, compressed (zstd), readable in Python, R, DuckDB, Spark and most other tools.
+Same tables as the SQLite files below.<br>
+<a href="https://huggingface.co/datasets/shreyamm/project-diaphanum">Hugging Face dataset &rarr;</a>
+</p>
+<ul>
+<li><code>combined/</code> &ndash; Sarthak's archive and ours stacked, with a <code>source</code> column (<code>sarthak</code> or <code>netalink</code>). Start here. <a href="https://mega.nz/folder/K7wUQTLD#Pm3_ZqtT6iYEm34p1BKhYA">MEGA</a></li>
+<li><code>ours/</code> &ndash; only the rows added by Diaphanum. <a href="https://mega.nz/folder/qyYwwKCY#2sepQ5Z95jyI_92tvM2d6w">MEGA</a></li>
+</ul>
+
+<h3>SQLite</h3>
+<p>The raw databases we built, one per kind of record, zipped. They hold the rows added by Diaphanum. Every file has a SHA-256 so you can check your download.</p>
+<table>
+<tr><th>File</th><th>Holds</th><th>Size</th><th>SHA-256</th></tr>
+<tr><td><a href="https://huggingface.co/datasets/shreyamm/project-diaphanum/resolve/main/sqlite/AOC-mine.sqlite.zip">AOC-mine.sqlite.zip</a></td><td>Awards: <code>aoc_tenders</code>, <code>aoc_details</code>, <code>hitl_bidders</code>, <code>l1_bidders</code></td><td class="n">2.45 GB</td><td><code>ea3db67d2db082946885b8dc6a73fb33b7e9ff55bacf452a3f3e529e11e85db3</code></td></tr>
+<tr><td><a href="https://huggingface.co/datasets/shreyamm/project-diaphanum/resolve/main/sqlite/tenders_vps-mine.sqlite.zip">tenders_vps-mine.sqlite.zip</a></td><td>Notices: <code>tenders</code>, <code>tender_details</code>, <code>tender_details_extra</code></td><td class="n">5.19 GB</td><td><code>fbcb3ec11596abefd472227430acb3eb1a12dcf402270b7dc25f1c749c00cad3</code></td></tr>
+</table>
+<p>Also on MEGA: <a href="https://mega.nz/folder/b7w21YKD#HNwMIy_bmg8C3K44Z8bmwg">SQLite folder</a>.</p>
+
+<h3>Mirror</h3>
+<p>The whole release (Parquet, SQLite, checksums, this overview) is also on MEGA, in case Hugging Face is unavailable:
+<a href="https://mega.nz/folder/L2pBxJRY#bslPUmiuseOWx_ZQbV8FGA">MEGA mirror, full release &rarr;</a></p>
+
+<h3>Quick start</h3>
+<pre>import duckdb
+duckdb.sql("""
+  SELECT source, count(*)
+  FROM read_parquet('combined/aoc_tenders.parquet')
+  GROUP BY 1
+""").show()</pre>
+
+<h2>What is in it</h2>
+<table>
+<tr><th></th><th>Earlier archive</th><th>Added by Diaphanum</th><th>Combined</th></tr>
+<tr><td>Award rows (<code>aoc_tenders</code>)</td><td class="n">4,921,960</td><td class="n">3,850,760</td><td class="n">8,772,720</td></tr>
+<tr><td>Notice rows (<code>tenders</code>)</td><td class="n">3,952,191</td><td class="n">14,987,241</td><td class="n">18,939,432</td></tr>
+<tr><td>Bidder rows of published awards</td><td class="n">&ndash;</td><td class="n">11,064,270</td><td class="n">11,064,270</td></tr>
+<tr><td>Tenders with a bid list but no published award</td><td class="n">&ndash;</td><td class="n">3,446,792</td><td class="n">3,446,792</td></tr>
+</table>
+
+<ul>
+<li><b>Notices</b> (<code>tenders</code>, <code>tender_details</code>, <code>tender_details_extra</code>): what was put out to tender, by whom, when, for how much, where, in which category.</li>
+<li><b>Awards</b> (<code>aoc_tenders</code>, <code>aoc_details</code>): published awards of contract, with organisation, value, date and winner.</li>
+<li><b>Bidders</b> (<code>award_bidders</code>): every bidder on those awards, with status and bid value where the portal shows it.</li>
+<li><b>Bid lists without an award</b> (<code>bid_lists_no_published_award</code>): tenders where the portal shows who bid but never published an award.</li>
+<li><b>Inferred awards</b> (<code>inferred_awards</code>, 2,928,577 rows): for those tenders, the likely winner, chosen by L1 rank (1,083,948), sole financial bidder (1,745,259) or lowest price (99,370). Kept in a separate table and never mixed with published awards. Each row is marked <i>inferred from bid list; award not published</i>. The lowest bidder does not always get the contract.</li>
+</ul>
+
+<h2>State-wise tally</h2>
+<p>
+Counts for the state portals. <i>Earlier</i> is what Sarthak's archive already had; <i>Added</i> is what Diaphanum added.
+&ldquo;Bid lists&rdquo; counts tenders with bidders listed but no published award. Notices are counted by the state named as the
+organisation.
+</p>
+<div class="scroll">
+<table>
+<tr><th rowspan="2">State / UT</th><th colspan="3">Awards</th><th>Bid lists</th><th colspan="3">Notices</th></tr>
+<tr><th>Earlier</th><th>Added</th><th>Total</th><th>Added</th><th>Earlier</th><th>Added</th><th>Total</th></tr>
+<tr><td>West Bengal</td><td class=n>785,197</td><td class=n>676,422</td><td class=n>1,461,619</td><td class=n>474,539</td><td class=n>4,438</td><td class=n>2,443,670</td><td class=n>2,448,108</td></tr>
+<tr><td>Maharashtra</td><td class=n>537,695</td><td class=n>665,347</td><td class=n>1,203,042</td><td class=n>508,973</td><td class=n>2,316</td><td class=n>2,189,731</td><td class=n>2,192,047</td></tr>
+<tr><td>Uttar Pradesh</td><td class=n>151,213</td><td class=n>286,933</td><td class=n>438,146</td><td class=n>591,456</td><td class=n>7,572</td><td class=n>2,191,304</td><td class=n>2,198,876</td></tr>
+<tr><td>Kerala</td><td class=n>358,799</td><td class=n>484,020</td><td class=n>842,819</td><td class=n>77,346</td><td class=n>2,210</td><td class=n>1,417,842</td><td class=n>1,420,052</td></tr>
+<tr><td>Rajasthan</td><td class=n>10,423</td><td class=n>56,461</td><td class=n>66,884</td><td class=n>573,408</td><td class=n>4,779</td><td class=n>1,033,875</td><td class=n>1,038,654</td></tr>
+<tr><td>Tamil Nadu</td><td class=n>139,936</td><td class=n>137,664</td><td class=n>277,600</td><td class=n>127,347</td><td class=n>2,459</td><td class=n>824,095</td><td class=n>826,554</td></tr>
+<tr><td>Jammu and Kashmir</td><td class=n>2,692</td><td class=n>4,236</td><td class=n>6,928</td><td class=n>348,904</td><td class=n>2,522</td><td class=n>1,074,337</td><td class=n>1,076,859</td></tr>
+<tr><td>Madhya Pradesh</td><td class=n>248,689</td><td class=n>116,961</td><td class=n>365,650</td><td class=n>76,377</td><td class=n>2,586</td><td class=n>624,346</td><td class=n>626,932</td></tr>
+<tr><td>Haryana</td><td class=n>162,327</td><td class=n>127,095</td><td class=n>289,422</td><td class=n>98,100</td><td class=n>2,060</td><td class=n>622,037</td><td class=n>624,097</td></tr>
+<tr><td>Odisha</td><td class=n>116,148</td><td class=n>100,039</td><td class=n>216,187</td><td class=n>77,124</td><td class=n>2,432</td><td class=n>587,396</td><td class=n>589,828</td></tr>
+<tr><td>Andhra Pradesh</td><td class=n>73,903</td><td class=n>582,789</td><td class=n>656,692</td><td class=n>0</td><td class=n>476</td><td class=n>19,876</td><td class=n>20,352</td></tr>
+<tr><td>Punjab</td><td class=n>133,675</td><td class=n>61,035</td><td class=n>194,710</td><td class=n>30,519</td><td class=n>2,781</td><td class=n>350,392</td><td class=n>353,173</td></tr>
+<tr><td>NCT of Delhi</td><td class=n>10,063</td><td class=n>7,456</td><td class=n>17,519</td><td class=n>264,866</td><td class=n>886</td><td class=n>388,946</td><td class=n>389,832</td></tr>
+<tr><td>Telangana</td><td class=n>2,566</td><td class=n>322,034</td><td class=n>324,600</td><td class=n>0</td><td class=n>1,058</td><td class=n>25,388</td><td class=n>26,446</td></tr>
+<tr><td>Himachal Pradesh</td><td class=n>41,366</td><td class=n>40,120</td><td class=n>81,486</td><td class=n>61,551</td><td class=n>892</td><td class=n>208,430</td><td class=n>209,322</td></tr>
+<tr><td>Bihar</td><td class=n>0</td><td class=n>68,652</td><td class=n>68,652</td><td class=n>0</td><td class=n>0</td><td class=n>150,690</td><td class=n>150,690</td></tr>
+<tr><td>Jharkhand</td><td class=n>17,263</td><td class=n>21,535</td><td class=n>38,798</td><td class=n>19,197</td><td class=n>427</td><td class=n>155,094</td><td class=n>155,521</td></tr>
+<tr><td>Chandigarh UT</td><td class=n>14,804</td><td class=n>14,802</td><td class=n>29,606</td><td class=n>36,000</td><td class=n>300</td><td class=n>115,123</td><td class=n>115,423</td></tr>
+<tr><td>Tripura</td><td class=n>39,546</td><td class=n>25,370</td><td class=n>64,916</td><td class=n>3,182</td><td class=n>237</td><td class=n>76,696</td><td class=n>76,933</td></tr>
+<tr><td>Uttarakhand</td><td class=n>15,452</td><td class=n>11,493</td><td class=n>26,945</td><td class=n>22,433</td><td class=n>549</td><td class=n>112,593</td><td class=n>113,142</td></tr>
+<tr><td>Chhattisgarh</td><td class=n>0</td><td class=n>2</td><td class=n>2</td><td class=n>0</td><td class=n>0</td><td class=n>134,022</td><td class=n>134,022</td></tr>
+<tr><td>Assam</td><td class=n>26,991</td><td class=n>20,012</td><td class=n>47,003</td><td class=n>9,511</td><td class=n>277</td><td class=n>80,619</td><td class=n>80,896</td></tr>
+<tr><td>Goa</td><td class=n>11,071</td><td class=n>9,297</td><td class=n>20,368</td><td class=n>6,783</td><td class=n>170</td><td class=n>31,482</td><td class=n>31,652</td></tr>
+<tr><td>Ladakh UT</td><td class=n>2,665</td><td class=n>1,530</td><td class=n>4,195</td><td class=n>15,801</td><td class=n>106</td><td class=n>40,974</td><td class=n>41,080</td></tr>
+<tr><td>Puducherry UT</td><td class=n>10,010</td><td class=n>5,836</td><td class=n>15,846</td><td class=n>2,858</td><td class=n>65</td><td class=n>22,335</td><td class=n>22,400</td></tr>
+<tr><td>Andaman and Nicobar Island</td><td class=n>1,753</td><td class=n>982</td><td class=n>2,735</td><td class=n>14,075</td><td class=n>132</td><td class=n>24,927</td><td class=n>25,059</td></tr>
+<tr><td>Gujarat</td><td class=n>0</td><td class=n>440</td><td class=n>440</td><td class=n>0</td><td class=n>0</td><td class=n>16,766</td><td class=n>16,766</td></tr>
+<tr><td>Dadra and Nagar Haveli (UT)</td><td class=n>998</td><td class=n>819</td><td class=n>1,817</td><td class=n>1,444</td><td class=n>10</td><td class=n>8,007</td><td class=n>8,017</td></tr>
+<tr><td>Daman and Diu</td><td class=n>476</td><td class=n>212</td><td class=n>688</td><td class=n>1,356</td><td class=n>25</td><td class=n>4,827</td><td class=n>4,852</td></tr>
+<tr><td>Arunachal Pradesh</td><td class=n>284</td><td class=n>395</td><td class=n>679</td><td class=n>888</td><td class=n>5</td><td class=n>3,488</td><td class=n>3,493</td></tr>
+<tr><td>Lakshadweep UT</td><td class=n>39</td><td class=n>196</td><td class=n>235</td><td class=n>1,917</td><td class=n>10</td><td class=n>3,669</td><td class=n>3,679</td></tr>
+<tr><td>Meghalaya</td><td class=n>215</td><td class=n>183</td><td class=n>398</td><td class=n>206</td><td class=n>22</td><td class=n>1,957</td><td class=n>1,979</td></tr>
+<tr><td>Sikkim</td><td class=n>93</td><td class=n>76</td><td class=n>169</td><td class=n>317</td><td class=n>6</td><td class=n>845</td><td class=n>851</td></tr>
+<tr><td>Nagaland</td><td class=n>139</td><td class=n>134</td><td class=n>273</td><td class=n>221</td><td class=n>4</td><td class=n>741</td><td class=n>745</td></tr>
+<tr><td>Mizoram</td><td class=n>54</td><td class=n>55</td><td class=n>109</td><td class=n>93</td><td class=n>2</td><td class=n>475</td><td class=n>477</td></tr>
+<tr><td>Manipur</td><td class=n>157</td><td class=n>127</td><td class=n>284</td><td class=n>0</td><td class=n>11</td><td class=n>246</td><td class=n>257</td></tr>
+<tr><td>Karnataka</td><td class=n>0</td><td class=n>0</td><td class=n>0</td><td class=n>0</td><td class=n>0</td><td class=n>0</td><td class=n>0</td></tr>
+<tr><th>Total</th><th class=n>2,916,702</th><th class=n>3,850,760</th><th class=n>6,767,462</th><th class=n>3,446,792</th><th class=n>41,825</th><th class=n>14,987,241</th><th class=n>15,029,066</th></tr>
+</table>
+</div>
+<p>
+  It is important to point out that Karnataka was not a part of the scrape because it already has an API key that allows citizens to access the data. It is very pleasant to see governments such Karnataka prioritizing open-data ventures in India. 
+</p>
+
+<h2>Sources</h2>
+<p>
+Every record was read from an official government e-procurement portal, and every added row carries the URL of the page it
+came from, so any record can be checked against its source. Only publicly accessible pages were used. Nothing is
+login-only, paid or leaked.
+</p>
+<h3>NIC GePNIC portals</h3>
+<p>
+The e-procurement system of the National Informatics Centre, used by about 30 states and union territories:
+West Bengal, Maharashtra, Uttar Pradesh, Kerala, Tamil Nadu, Madhya Pradesh, Haryana, Odisha, Punjab, Rajasthan, Delhi,
+Jammu &amp; Kashmir, Himachal Pradesh, Jharkhand, Uttarakhand, Assam, Tripura, Goa, Chandigarh, Puducherry, Ladakh,
+Andaman &amp; Nicobar, Dadra &amp; Nagar Haveli, Daman &amp; Diu, Lakshadweep and the north-eastern states.
+For example <code>wbtenders.gov.in</code>, <code>mahatenders.gov.in</code>, <code>etender.up.nic.in</code>,
+<code>etenders.kerala.gov.in</code>, <code>tntenders.gov.in</code>.
+</p>
+<h3>State-run portals</h3>
+<table>
+<tr><th>State</th><th>Portal</th></tr>
+<tr><td>Telangana</td><td><code>tender.telangana.gov.in</code></td></tr>
+<tr><td>Andhra Pradesh</td><td><code>tender.apeprocurement.gov.in</code></td></tr>
+<tr><td>Chhattisgarh</td><td><code>eproc.cgstate.gov.in</code></td></tr>
+<tr><td>Bihar</td><td><code>eproc2.bihar.gov.in</code></td></tr>
+<tr><td>Gujarat</td><td><code>tender.nprocure.com</code></td></tr>
+<tr><td>Rajasthan</td><td><code>sppp.rajasthan.gov.in</code> </td></tr>
+</table>
+<h3>Central portal</h3>
+<p>
+The earlier archive was scraped from the Central Public Procurement Portal, <code>eprocure.gov.in</code>.
+See <a href="https://tender.sarthaksidhant.com/">its page</a> for details.
+</p>
+
+<h2>How it was checked</h2>
+<ul>
+<li><b>No duplicates.</b> Each tender appears once per table, and no added row repeats a tender already in the earlier archive (checked by tender id).</li>
+<li><b>No id clashes.</b> Some portals use bare numbers as ids, which collide with other portals. Their ids carry a prefix: <code>TS_</code> Telangana, <code>AP_</code> Andhra Pradesh, <code>CG_</code> Chhattisgarh, <code>GJNP_</code> Gujarat.</li>
+<li><b>Against the official count.</b> Notice totals match the NIC eProcurement dashboard (<code>eprocure.gov.in/eprocdashboard</code>) at about 100% for every GePNIC state, except Manipur (7%) and Ladakh (97%).</li>
+<li><b>Dates.</b> Award dates that did not parse as a real date were left blank, not guessed.</li>
+<li><b>Files.</b> Row counts of every table were verified against the manifests, and both SQLite files pass <code>PRAGMA quick_check</code>.</li>
+<li><b>Source untouched.</b> The earlier archive was only read, never modified.</li>
+</ul>
+
+<h2>Limitations of this release</h2>
+<p>
+The release cannot be deemed complete. There are clearly many gaps, as seen in the State-wise distribution table, with some states having much less tenders than expected. A closer look into these topics is necessary.
+</p>
+<ul>
+<li>Several states publish financial-evaluation results without a formal award notice. In Kerala, Tripura, West Bengal, Maharashtra, Goa, Assam, Tamil Nadu, Odisha and Punjab, the archive holds 53&ndash;84% of the count on the NIC dashboard; the rest is not published per tender. Tamil Nadu does not show bidders before an award.</li>
+<li>Chhattisgarh, Gujarat and Bihar have few awards, because those portals publish few.</li>
+<li>Values and dates are as each portal shows them. Nothing is converted to a single format or currency.</li>
+</ul>
+
+<h2>Use, cite, correct</h2>
+<p><b>Licence:</b> <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Use it for anything, including commercial work, but credit Project Diaphanum and, for the earlier rows, Sarthak Siddhant.</p>
+<p><b>Cite as:</b> Project Diaphanum (2026). Indian public procurement, Release R1. https://project-diaphanum.shreyam.me/</p>
+<p><b>Errors, questions, findings:</b> <a href="mailto:shreyammandal001@gmail.com">shreyammandal001@gmail.com</a></p>
+
+<p class="sub">Project Diaphanum &middot; Release R1, 2026-11-09</p>
+
+</body>
+</html>
