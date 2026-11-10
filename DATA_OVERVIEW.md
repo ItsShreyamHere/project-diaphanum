@@ -1,6 +1,6 @@
 # Indian Public Procurement Dataset: Release R1 (overview)
 
-Release date: 2026-11-09. Period covered: 2011 to 2026. Scope: every Indian state and union territory.
+Release date: 2026-11-09. Period covered: 2011 to 2026. Scope: nearly every Indian state and union territory (Karnataka is not yet included).
 
 ## What it is
 
